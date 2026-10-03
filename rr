@@ -1,0 +1,213 @@
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+struct Process
+{
+    int pid, at, bt1, bt2;
+    int bt, rem;
+    int ct, tat, wt;
+};
+
+struct Gantt
+{
+    int pid, start, end;
+};
+
+int main()
+{
+    struct Process p[20];
+    struct Gantt g[500];
+    int n, tq, i, j;
+    int time = 0, completed = 0;
+    int count = 0, found;
+    int queue[1000], front = 0, rear = 0;
+    int inQueue[20] = {0};
+    float avgWT = 0, avgTAT = 0;
+
+    srand((unsigned int)time(NULL));
+
+    printf("Enter number of processes: ");
+    scanf("%d", &n);
+
+    printf("Enter time quantum: ");
+    scanf("%d", &tq);
+
+    if(n <= 0 || n > 20 || tq <= 0)
+    {
+        printf("Invalid input!\n");
+        return 1;
+    }
+
+    for(i = 0; i < n; i++)
+    {
+        p[i].pid = i + 1;
+
+        printf("\nEnter arrival time of P%d: ", i + 1);
+        scanf("%d", &p[i].at);
+
+        printf("Enter first CPU burst of P%d: ", i + 1);
+        scanf("%d", &p[i].bt1);
+
+        if(p[i].at < 0 || p[i].bt1 <= 0)
+        {
+            printf("Invalid arrival or burst time!\n");
+            return 1;
+        }
+
+        // Generate second CPU burst randomly
+        p[i].bt2 = rand() % 10 + 1;
+
+        p[i].bt = p[i].bt1 + p[i].bt2;
+        p[i].rem = p[i].bt;
+
+        printf("Random next CPU burst of P%d = %d\n",
+               i + 1, p[i].bt2);
+    }
+
+    // Sort processes by arrival time
+    for(i = 0; i < n - 1; i++)
+    {
+        for(j = i + 1; j < n; j++)
+        {
+            if(p[i].at > p[j].at)
+            {
+                struct Process temp = p[i];
+                p[i] = p[j];
+                p[j] = temp;
+            }
+        }
+    }
+
+    printf("\nGANTT CHART\n");
+
+    // Insert initially arrived processes into queue
+    for(i = 0; i < n; i++)
+    {
+        if(p[i].at <= time)
+        {
+            queue[rear++] = i;
+            inQueue[i] = 1;
+        }
+    }
+
+    while(completed < n)
+    {
+        if(front == rear)
+        {
+            // CPU idle until next process arrives
+            int next = -1;
+
+            for(i = 0; i < n; i++)
+            {
+                if(p[i].rem > 0 &&
+                   (next == -1 || p[i].at < p[next].at))
+                    next = i;
+            }
+
+            if(next != -1)
+                time = p[next].at;
+
+            for(i = 0; i < n; i++)
+            {
+                if(p[i].rem > 0 &&
+                   !inQueue[i] && p[i].at <= time)
+                {
+                    queue[rear++] = i;
+                    inQueue[i] = 1;
+                }
+            }
+        }
+
+        if(front == rear)
+            break;
+
+        int index = queue[front++];
+        int start = time;
+
+        int execute = (p[index].rem < tq)
+                      ? p[index].rem : tq;
+
+        time += execute;
+        p[index].rem -= execute;
+
+        g[count].pid = p[index].pid;
+        g[count].start = start;
+        g[count].end = time;
+        count++;
+
+        // Add newly arrived processes to ready queue
+        for(i = 0; i < n; i++)
+        {
+            if(!inQueue[i] && p[i].rem > 0 &&
+               p[i].at <= time)
+            {
+                queue[rear++] = i;
+                inQueue[i] = 1;
+            }
+        }
+
+        if(p[index].rem > 0)
+        {
+            queue[rear++] = index;
+        }
+        else
+        {
+            p[index].ct = time;
+            p[index].tat = p[index].ct - p[index].at;
+            p[index].wt = p[index].tat - p[index].bt;
+            completed++;
+        }
+    }
+
+    // Display Gantt chart
+    printf("\n");
+
+    for(i = 0; i < count; i++)
+    {
+        printf("| P%d ", g[i].pid);
+    }
+    printf("|\n");
+
+    printf("%d", g[0].start);
+
+    for(i = 0; i < count; i++)
+    {
+        printf("\t%d", g[i].end);
+    }
+
+    printf("\n\nPROCESS DETAILS\n");
+
+    printf("PID\tAT\tBT1\tBT2\tBT\tCT\tTAT\tWT\n");
+
+    // Display in original process order
+    for(i = 0; i < n; i++)
+    {
+        int index = 0;
+
+        while(p[index].pid != i + 1)
+            index++;
+
+        printf("P%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\n",
+               p[index].pid,
+               p[index].at,
+               p[index].bt1,
+               p[index].bt2,
+               p[index].bt,
+               p[index].ct,
+               p[index].tat,
+               p[index].wt);
+
+        avgWT += p[index].wt;
+        avgTAT += p[index].tat;
+    }
+
+    printf("\nAverage Waiting Time = %.2f",
+           avgWT / n);
+
+    printf("\nAverage Turnaround Time = %.2f\n",
+           avgTAT / n);
+
+    return 0;
+}
