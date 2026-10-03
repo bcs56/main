@@ -1,0 +1,118 @@
+
+#include <stdio.h>
+
+#define MAX 100
+
+int main()
+{
+    int frames[MAX], count[MAX];
+    int pages[MAX];
+    int n, m;
+    int i, j, k;
+    int pageFaults = 0;
+    int found, replaceIndex;
+
+    printf("Enter number of frames: ");
+    scanf("%d", &n);
+
+    if (n <= 0 || n > MAX)
+    {
+        printf("Invalid number of frames.\n");
+        return 1;
+    }
+
+    printf("Enter number of pages: ");
+    scanf("%d", &m);
+
+    if (m <= 0 || m > MAX)
+    {
+        printf("Invalid number of pages.\n");
+        return 1;
+    }
+
+    printf("Enter the page reference string:\n");
+    for (i = 0; i < m; i++)
+    {
+        scanf("%d", &pages[i]);
+    }
+
+    // Initialize frames and reference counts
+    for (i = 0; i < n; i++)
+    {
+        frames[i] = -1;
+        count[i] = 0;
+    }
+
+    printf("\nPage\tFrames\t\tStatus\n");
+
+    for (i = 0; i < m; i++)
+    {
+        found = 0;
+
+        // Check whether page is already present
+        for (j = 0; j < n; j++)
+        {
+            if (frames[j] == pages[i])
+            {
+                found = 1;
+                count[j]++;
+                break;
+            }
+        }
+
+        if (found == 0)
+        {
+            pageFaults++;
+
+            // Find an empty frame
+            replaceIndex = -1;
+
+            for (j = 0; j < n; j++)
+            {
+                if (frames[j] == -1)
+                {
+                    replaceIndex = j;
+                    break;
+                }
+            }
+
+            // If no empty frame, replace the most frequently used page
+            if (replaceIndex == -1)
+            {
+                replaceIndex = 0;
+
+                for (j = 1; j < n; j++)
+                {
+                    if (count[j] > count[replaceIndex])
+                    {
+                        replaceIndex = j;
+                    }
+                }
+            }
+
+            frames[replaceIndex] = pages[i];
+            count[replaceIndex] = 1;
+        }
+
+        // Display current frame contents
+        printf("%d\t", pages[i]);
+
+        for (k = 0; k < n; k++)
+        {
+            if (frames[k] == -1)
+                printf("- ");
+            else
+                printf("%d ", frames[k]);
+        }
+
+        if (found == 0)
+            printf("\tPage Fault\n");
+        else
+            printf("\tHit\n");
+    }
+
+    printf("\nTotal Number of Page Faults = %d\n", pageFaults);
+    printf("Total Number of Page Hits = %d\n", m - pageFaults);
+
+    return 0;
+}
