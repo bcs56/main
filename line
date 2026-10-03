@@ -1,0 +1,115 @@
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <ctype.h>
+
+int main()
+{
+    char cmd[100], *args[10];
+    int i;
+
+    while (1)
+    {
+        printf("$ ");
+        fflush(stdout);
+
+        if (fgets(cmd, sizeof(cmd), stdin) == NULL)
+            break;
+
+        cmd[strcspn(cmd, "\n")] = '\0';
+
+        if (strcmp(cmd, "exit") == 0)
+            break;
+
+        // Tokenize command
+        i = 0;
+        args[i] = strtok(cmd, " \t");
+
+        while (args[i] != NULL && i < 8)
+        {
+            i++;
+            args[i] = strtok(NULL, " \t");
+        }
+        args[i] = NULL;
+
+        if (args[0] == NULL)
+            continue;
+
+        // Implement count command
+        if (strcmp(args[0], "count") == 0)
+        {
+            if (args[1] == NULL || args[2] == NULL)
+            {
+                printf("Usage: count c/w/l filename\n");
+                continue;
+            }
+
+            FILE *fp = fopen(args[2], "r");
+
+            if (fp == NULL)
+            {
+                perror("File opening failed");
+                continue;
+            }
+
+            int ch, characters = 0, words = 0, lines = 0;
+            int inWord = 0;
+
+            while ((ch = fgetc(fp)) != EOF)
+            {
+                characters++;
+
+                if (ch == '\n')
+                    lines++;
+
+                if (isspace((unsigned char)ch))
+                    inWord = 0;
+                else if (!inWord)
+                {
+                    words++;
+                    inWord = 1;
+                }
+            }
+
+            fclose(fp);
+
+            if (strcmp(args[1], "c") == 0)
+                printf("Number of characters = %d\n", characters);
+
+            else if (strcmp(args[1], "w") == 0)
+                printf("Number of words = %d\n", words);
+
+            else if (strcmp(args[1], "l") == 0)
+                printf("Number of lines = %d\n", lines);
+
+            else
+                printf("Invalid count option!\n");
+        }
+
+        else
+        {
+            pid_t pid = fork();
+
+            if (pid < 0)
+            {
+                perror("Fork failed");
+            }
+            else if (pid == 0)
+            {
+                execvp(args[0], args);
+                perror("Command execution failed");
+                exit(1);
+            }
+            else
+            {
+                wait(NULL);
+            }
+        }
+    }
+
+    return 0;
+}
