@@ -1,0 +1,99 @@
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+
+extern char **environ;
+
+int main()
+{
+    int n, i, j, temp;
+    int a[100];
+    char *args[102];
+
+    printf("Enter number of elements: ");
+    scanf("%d", &n);
+
+    if(n <= 0 || n > 100)
+    {
+        printf("Invalid array size!\n");
+        return 1;
+    }
+
+    printf("Enter %d integers:\n", n);
+
+    for(i = 0; i < n; i++)
+    {
+        scanf("%d", &a[i]);
+    }
+
+    // Sort array using Bubble Sort
+    for(i = 0; i < n - 1; i++)
+    {
+        for(j = 0; j < n - i - 1; j++)
+        {
+            if(a[j] > a[j + 1])
+            {
+                temp = a[j];
+                a[j] = a[j + 1];
+                a[j + 1] = temp;
+            }
+        }
+    }
+
+    printf("\nParent Process\n");
+    printf("Sorted array:\n");
+
+    for(i = 0; i < n; i++)
+        printf("%d ", a[i]);
+
+    printf("\n");
+
+    // Prepare command-line arguments
+    args[0] = "./child";
+
+    for(i = 0; i < n; i++)
+    {
+        args[i + 1] = malloc(12);
+
+        if(args[i + 1] == NULL)
+        {
+            perror("malloc");
+            return 1;
+        }
+
+        snprintf(args[i + 1], 12, "%d", a[i]);
+    }
+
+    args[n + 1] = NULL;
+
+    pid_t pid = fork();
+
+    if(pid < 0)
+    {
+        perror("fork");
+        return 1;
+    }
+    else if(pid == 0)
+    {
+        // Child process executes new program
+        execve("./child", args, environ);
+
+        // Executed only if execve fails
+        perror("execve");
+        exit(1);
+    }
+    else
+    {
+        // Parent waits for child
+        wait(NULL);
+        printf("\nParent process completed.\n");
+    }
+
+    for(i = 1; i <= n; i++)
+        free(args[i]);
+
+    return 0;
+}
