@@ -1,0 +1,153 @@
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+#define MAX 100
+
+struct Process
+{
+    int pid;
+    int at, bt1, bt2, bt;
+    int priority;
+    int remaining;
+    int ct, tat, wt;
+};
+
+int main()
+{
+    struct Process p[MAX];
+    int n, i, time = 0;
+    int completed = 0;
+    int current, minPriority;
+    int ganttTime[10000], ganttPID[10000];
+    int g = 0;
+    float avgTAT = 0, avgWT = 0;
+
+    srand(time(NULL));
+
+    printf("Enter number of processes: ");
+    scanf("%d", &n);
+
+    if (n <= 0 || n > MAX)
+    {
+        printf("Invalid number of processes.\n");
+        return 1;
+    }
+
+    for (i = 0; i < n; i++)
+    {
+        p[i].pid = i + 1;
+
+        printf("\nEnter arrival time of P%d: ", i + 1);
+        scanf("%d", &p[i].at);
+
+        printf("Enter first CPU burst of P%d: ", i + 1);
+        scanf("%d", &p[i].bt1);
+
+        printf("Enter priority of P%d: ", i + 1);
+        scanf("%d", &p[i].priority);
+
+        p[i].bt2 = rand() % 10 + 1;
+
+        p[i].bt = p[i].bt1 + p[i].bt2;
+        p[i].remaining = p[i].bt;
+
+        printf("Randomly generated second CPU burst: %d\n",
+               p[i].bt2);
+    }
+
+    while (completed < n)
+    {
+        current = -1;
+        minPriority = 999999;
+
+        // Select the highest-priority arrived process
+        for (i = 0; i < n; i++)
+        {
+            if (p[i].at <= time && p[i].remaining > 0)
+            {
+                if (p[i].priority < minPriority)
+                {
+                    minPriority = p[i].priority;
+                    current = i;
+                }
+                else if (p[i].priority == minPriority &&
+                         current != -1 &&
+                         p[i].at < p[current].at)
+                {
+                    current = i;
+                }
+            }
+        }
+
+        if (current == -1)
+        {
+            ganttPID[g] = -1;
+            ganttTime[g] = time;
+            g++;
+            time++;
+            continue;
+        }
+
+        // Execute selected process for one time unit
+        ganttPID[g] = p[current].pid;
+        ganttTime[g] = time;
+        g++;
+
+        p[current].remaining--;
+        time++;
+
+        if (p[current].remaining == 0)
+        {
+            p[current].ct = time;
+            p[current].tat = p[current].ct - p[current].at;
+            p[current].wt = p[current].tat - p[current].bt;
+            completed++;
+        }
+    }
+
+    ganttTime[g] = time;
+
+    // Display Gantt chart
+    printf("\n\nGANTT CHART\n");
+
+    for (i = 0; i < g; i++)
+    {
+        if (ganttPID[i] == -1)
+            printf("| IDLE ");
+        else
+            printf("|  P%d  ", ganttPID[i]);
+    }
+    printf("|\n");
+
+    printf("%d", ganttTime[0]);
+
+    for (i = 1; i <= g; i++)
+    {
+        printf("      %d", ganttTime[i]);
+    }
+
+    // Display process details
+    printf("\n\nPROCESS TABLE\n");
+    printf("PID\tAT\tBT1\tBT2\tPriority\tCT\tTAT\tWT\n");
+
+    for (i = 0; i < n; i++)
+    {
+        printf("P%d\t%d\t%d\t%d\t%d\t\t%d\t%d\t%d\n",
+               p[i].pid, p[i].at, p[i].bt1,
+               p[i].bt2, p[i].priority,
+               p[i].ct, p[i].tat, p[i].wt);
+
+        avgTAT += p[i].tat;
+        avgWT += p[i].wt;
+    }
+
+    avgTAT /= n;
+    avgWT /= n;
+
+    printf("\nAverage Turnaround Time = %.2f", avgTAT);
+    printf("\nAverage Waiting Time = %.2f\n", avgWT);
+
+    return 0;
+}
