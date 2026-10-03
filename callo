@@ -1,0 +1,143 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+struct DIR
+{
+  char fname[20];
+  int start, len;
+}File[10];
+static int fno=0;
+
+void main()
+{
+  void showbit(int bit[], int size);
+  void create(int bit[], int size);
+  void delete(int bit[], int size);
+  void showdir();
+  int flag=0, count, size, i, j, k, temp, op=0;
+  printf("\nEnter disk size : ");
+  scanf("%d",&size);
+  int bit[size];
+  for(i=0; i<size; i++)
+  {
+    temp = rand()%10;
+    if(temp>8)
+      bit[i] = 0;
+    else
+      bit[i] = 1;
+  }
+
+  do{
+    printf("\nSelect an option");
+    printf("\n\t1. Show Bit Vector");
+    printf("\n\t2. Create New File");
+    printf("\n\t3. Show Directiory");
+    printf("\n\t4. Delete File");
+    printf("\n\t5. Exit");
+    printf("\nEnter your choice : ");
+    scanf("%d",&op);
+
+    switch(op)
+    {
+      case 1: showbit(bit,size);
+             break;
+      case 2: create(bit,size);
+             break;
+      case 3: showdir();
+             break;
+      case 4: delete(bit,size);
+             break;
+      case 5: flag=1;
+             break;
+      default: printf("Please enter valid input");
+    }
+  }while(flag==0);
+}
+
+void create(int bit[], int size)
+{
+  char name[20];
+  int i, j, length, cnt=0, current=-1, flag=0;
+  printf("\nEnter file name : ");	
+  scanf("%s",name);
+  printf("\nEnter file blocks to be allocated : ");
+  scanf("%d",&length);
+  for(i=0; i<size; i++)
+  {
+    if(bit[i]==1)
+    {
+      if(current==-1)
+        current = i;
+      cnt++;
+    }
+    else
+    {
+      if(cnt>=length)
+      {
+        for(j=current; j<(current+length); j++)
+          bit[j] = 0;
+        strcpy(File[fno].fname,name);
+        File[fno].start = current;
+        File[fno].len = length;
+        flag = 1;
+        fno++;
+        printf("\nFile %s create successfully!\n",name);
+        break;
+      }
+      else
+      {
+        cnt = 0;
+        current = -1;
+      }
+    }
+  }
+  if(!flag)
+    printf("\nFile %s is not created due to lack of blocks!\n",name);
+}
+
+void delete(int bit[], int size)
+{
+  int i, j, flag=0;
+  char name[20];
+  printf("\nEnter file name to be deleted : ");
+  scanf("%s",name);
+  for(i=0; i<fno; i++)
+  {
+    if(!strcmp(File[i].fname,name))
+    {
+      fno--;
+      for(j=File[i].start; j<(File[i].start+File[i].len); j++)
+        bit[j] = 1;
+      File[i] = File[fno];
+      flag = 1;
+      printf("\nFile %s deleted successfully!\n",name);
+    }
+  }
+  if(!flag)
+    printf("\nFile not found!\n");
+}
+
+void showbit(int bit[], int size)
+{
+  int i;
+  printf("\nBitvector is as follows : \n");
+  for(i=0; i<size; i++)
+  {
+    printf("   %d",bit[i]);
+  }
+  printf("\n");
+}
+
+void showdir()
+{
+  int i;
+  printf("\nDirectory contents are : ");
+  for(i=0; i<fno; i++)
+  {
+    printf("\n\tFilename : %s",File[i].fname);
+    printf("\n\tStart : %d",File[i].start);
+    printf("\n\tLength : %d\n",File[i].len);
+  }
+  printf("\n");
+}
+
