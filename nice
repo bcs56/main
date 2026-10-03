@@ -1,0 +1,49 @@
+
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <sys/resource.h>
+#include <stdlib.h>
+
+int main()
+{
+    pid_t pid;
+
+    printf("Parent Process Started\n");
+    printf("Parent PID: %d\n", getpid());
+
+    pid = fork();
+
+    if(pid < 0)
+    {
+        printf("Fork Failed\n");
+        exit(1);
+    }
+
+    else if(pid == 0)
+    {
+        printf("\nChild Process Started\n");
+        printf("Child PID: %d\n", getpid());
+
+        // Increase priority by decreasing nice value
+        if(nice(-5) == -1)
+        {
+            perror("nice");
+        }
+
+        printf("Child Nice Value: %d\n", getpriority(PRIO_PROCESS, 0));
+
+        printf("Child Process Executing...\n");
+    }
+
+    else
+    {
+        // Parent process
+        wait(NULL);
+
+        printf("\nParent Process Completed\n");
+    }
+
+    return 0;
+}
