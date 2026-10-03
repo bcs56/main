@@ -1,0 +1,133 @@
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+struct Process
+{
+    int pid;
+    int at, bt1, bt2, bt;
+    int ct, tat, wt;
+};
+
+int main()
+{
+    struct Process p[20], temp;
+    int n, i, j;
+    int currentTime = 0;
+    float avgWT = 0, avgTAT = 0;
+
+    srand((unsigned int)time(NULL));
+
+    printf("Enter number of processes: ");
+    scanf("%d", &n);
+
+    if(n <= 0 || n > 20)
+    {
+        printf("Invalid number of processes!\n");
+        return 1;
+    }
+
+    // Input process details
+    for(i = 0; i < n; i++)
+    {
+        p[i].pid = i + 1;
+
+        printf("\nEnter arrival time of P%d: ", i + 1);
+        scanf("%d", &p[i].at);
+
+        printf("Enter first CPU burst of P%d: ", i + 1);
+        scanf("%d", &p[i].bt1);
+
+        if(p[i].at < 0 || p[i].bt1 <= 0)
+        {
+            printf("Invalid input!\n");
+            return 1;
+        }
+
+        // Generate second CPU burst randomly
+        p[i].bt2 = rand() % 10 + 1;
+
+        p[i].bt = p[i].bt1 + p[i].bt2;
+
+        printf("Random next CPU burst of P%d = %d\n",
+               p[i].pid, p[i].bt2);
+    }
+
+    // Sort processes according to arrival time
+    for(i = 0; i < n - 1; i++)
+    {
+        for(j = i + 1; j < n; j++)
+        {
+            if(p[i].at > p[j].at)
+            {
+                temp = p[i];
+                p[i] = p[j];
+                p[j] = temp;
+            }
+        }
+    }
+
+    // Calculate completion, turnaround and waiting time
+    printf("\nGANTT CHART\n");
+
+    printf("%d", currentTime);
+
+    for(i = 0; i < n; i++)
+    {
+        // CPU remains idle if no process has arrived
+        if(currentTime < p[i].at)
+        {
+            printf(" -- IDLE -- %d", p[i].at);
+            currentTime = p[i].at;
+        }
+
+        currentTime += p[i].bt;
+
+        p[i].ct = currentTime;
+
+        p[i].tat = p[i].ct - p[i].at;
+
+        p[i].wt = p[i].tat - p[i].bt;
+
+        printf(" -- P%d -- %d", p[i].pid, currentTime);
+    }
+
+    // Display process details
+    printf("\n\nPROCESS DETAILS\n");
+
+    printf("PID\tAT\tBT1\tBT2\tBT\tCT\tTAT\tWT\n");
+
+    // Display in original process order
+    for(i = 1; i <= n; i++)
+    {
+        for(j = 0; j < n; j++)
+        {
+            if(p[j].pid == i)
+            {
+                printf("P%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\n",
+                       p[j].pid,
+                       p[j].at,
+                       p[j].bt1,
+                       p[j].bt2,
+                       p[j].bt,
+                       p[j].ct,
+                       p[j].tat,
+                       p[j].wt);
+
+                avgWT += p[j].wt;
+                avgTAT += p[j].tat;
+                break;
+            }
+        }
+    }
+
+    // Calculate averages
+    avgWT = avgWT / n;
+    avgTAT = avgTAT / n;
+
+    printf("\nAverage Waiting Time = %.2f", avgWT);
+    printf("\nAverage Turnaround Time = %.2f\n", avgTAT);
+
+    return 0;
+}
