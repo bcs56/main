@@ -1,7 +1,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
 int main()
 {
 int a[10],bt[10],pr[10];
