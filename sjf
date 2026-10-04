@@ -2,116 +2,81 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-
-struct Process
-{
-    int pid;
-    int at, bt1, bt2, total;
-    int ct, tat, wt;
-    int done;
-};
-
 int main()
 {
-    struct Process p[20], temp;
-    int n, i, j, time = 0;
-    int completed = 0, minIndex;
-    float avgWT = 0, avgTAT = 0;
-
-    srand(time(NULL));
-
+int a[10],bt[10],pr[10];
+int n,i,j,temp,time=0,count,over=0,sum_wait=0,sum_tat-=0,start;
+float avgwait,avgtat;
     printf("Enter number of processes: ");
     scanf("%d", &n);
-
     for(i = 0; i < n; i++)
     {
-        p[i].pid = i + 1;
-
-        printf("\nEnter arrival time of P%d: ", i + 1);
-        scanf("%d", &p[i].at);
-
-        printf("Enter first CPU burst of P%d: ", i + 1);
-        scanf("%d", &p[i].bt1);
-
-        // Generate second CPU burst randomly
-        p[i].bt2 = rand() % 10 + 1;
-
-        p[i].total = p[i].bt1 + p[i].bt2;
-        p[i].done = 0;
-
-        printf("Random next CPU burst of P%d = %d\n",
-               i + 1, p[i].bt2);
-    }
-
-    printf("\nGANTT CHART\n");
-
-    printf("0");
-
-    while(completed < n)
-    {
-        minIndex = -1;
-
-        // Select shortest available process
-        for(i = 0; i < n; i++)
-        {
-            if(p[i].done == 0 && p[i].at <= time)
-            {
-                if(minIndex == -1 ||
-                   p[i].total < p[minIndex].total)
-                {
-                    minIndex = i;
-                }
-            }
-        }
-
-        // CPU is idle
-        if(minIndex == -1)
-        {
-            printf(" -- Idle -- %d", time + 1);
-            time++;
-            continue;
-        }
-
-        // Execute selected process
-        printf(" -- P%d -- %d",
-               p[minIndex].pid,
-               time + p[minIndex].total);
-
-        time += p[minIndex].total;
-
-        p[minIndex].ct = time;
-        p[minIndex].tat = p[minIndex].ct - p[minIndex].at;
-        p[minIndex].wt = p[minIndex].tat - p[minIndex].total;
-
-        p[minIndex].done = 1;
-        completed++;
-    }
-
-    printf("\n\nPROCESS DETAILS\n");
-
-    printf("PID\tAT\tBT1\tBT2\tTOTAL\tCT\tTAT\tWT\n");
-
-    for(i = 0; i < n; i++)
-    {
-        printf("P%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\n",
-               p[i].pid,
-               p[i].at,
-               p[i].bt1,
-               p[i].bt2,
-               p[i].total,
-               p[i].ct,
-               p[i].tat,
-               p[i].wt);
-
-        avgWT += p[i].wt;
-        avgTAT += p[i].tat;
-    }
-
-    avgWT /= n;
-    avgTAT /= n;
-
-    printf("\nAverage Waiting Time = %.2f", avgWT);
-    printf("\nAverage Turnaround Time = %.2f\n", avgTAT);
-
-    return 0;
+        printf("\nEnter arrival time and burst time of P %d: ", i + 1);
+        scanf("%d%d", &at[i],&bt[i]);
+        pr[i]=i+1;
 }
+for(i = 0; i < n; i++)
+{
+for(j = i+1; j < n; j++)
+{
+if(at[i]>at[j])
+{
+temp=at[i];
+at[i]=at[j];
+at[j]=temp;
+temp=bt[i];
+bt[i]=bt[j];
+bt[j]=temp;
+temp=pr[i];
+pr[i]=pr[j];
+pr[j]=temp;
+}
+}
+}
+printf("\n\nprocess\t at\t bt\t st\t endtime\t wt\t TAT\n\n");
+while(over<n)
+{
+count=0;
+for(i=over;i<n;i++)
+{
+if(at[i]=time)
+count++;
+else
+break;
+}
+if(count>1)
+{
+for(i=over;i<over+count-1;i++)
+{
+for(j=i+1;j<over+count;j++)
+{
+if(bt[i]>bt[j])
+{
+
+temp=at[i];
+at[i]=at[j];
+at[j]=temp;
+temp=bt[i];
+bt[i]=bt[j];
+bt[j]=temp;
+temp=pr[i];
+pr[i]=pr[j];
+pr[j]=temp;
+}
+}
+}
+]
+start=time;
+time+=vt[over];
+printf("p[%d]\t | \t%d\t | \t%d\t | \t%d\t\t%d\t\t%d\t\t%d\n",pr[over],at[over],bt[over],start,time,time-at[over]-bt[over],time-at[over]);
+sum_wait+=time-at[over]-bt[over];
+sum_tat+=time-at[over];
+over++;
+}
+avgwait=(float)sum_wait/(float)n;
+avgtat=(float)sum_tat/(float)n;
+ printf("\nAverage Waiting Time is %f\n", avgwait);
+    printf("\nAverage Turnaround Time is = %f\n", avgtat);
+return 0;
+}
+ 
