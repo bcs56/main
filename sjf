@@ -3,8 +3,8 @@
 #include <stdlib.h>
 int main()
 {
-int a[10],bt[10],pr[10];
-int n,i,j,temp,time=0,count,over=0,sum_wait=0,sum_tat-=0,start;
+int at[10],bt[10],pr[10];
+int n,i,j,temp,time=0,count,over=0,sum_wait=0,sum_tat=0,start;
 float avgwait,avgtat;
     printf("Enter number of processes: ");
     scanf("%d", &n);
@@ -64,9 +64,9 @@ pr[j]=temp;
 }
 }
 }
-]
+}
 start=time;
-time+=vt[over];
+time+=bt[over];
 printf("p[%d]\t | \t%d\t | \t%d\t | \t%d\t\t%d\t\t%d\t\t%d\n",pr[over],at[over],bt[over],start,time,time-at[over]-bt[over],time-at[over]);
 sum_wait+=time-at[over]-bt[over];
 sum_tat+=time-at[over];
