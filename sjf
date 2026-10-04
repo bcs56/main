@@ -1,81 +1,81 @@
-
-#include <stdio.h>
-#include <stdlib.h>
+#include<stdio.h>
 int main()
 {
-int at[10],bt[10],pr[10];
-int n,i,j,temp,time=0,count,over=0,sum_wait=0,sum_tat=0,start;
-float avgwait,avgtat;
-    printf("Enter number of processes: ");
-    scanf("%d", &n);
-    for(i = 0; i < n; i++)
-    {
-        printf("\nEnter arrival time and burst time of P %d: ", i + 1);
-        scanf("%d%d", &at[i],&bt[i]);
-        pr[i]=i+1;
-}
-for(i = 0; i < n; i++)
-{
-for(j = i+1; j < n; j++)
-{
-if(at[i]>at[j])
-{
-temp=at[i];
-at[i]=at[j];
-at[j]=temp;
-temp=bt[i];
-bt[i]=bt[j];
-bt[j]=temp;
-temp=pr[i];
-pr[i]=pr[j];
-pr[j]=temp;
-}
-}
-}
-printf("\n\nprocess\t at\t bt\t st\t endtime\t wt\t TAT\n\n");
-while(over<n)
-{
-count=0;
-for(i=over;i<n;i++)
-{
-if(at[i]=time)
-count++;
-else
-break;
-}
-if(count>1)
-{
-for(i=over;i<over+count-1;i++)
-{
-for(j=i+1;j<over+count;j++)
-{
-if(bt[i]>bt[j])
-{
+            int at[10],bt[10],pr[10];
+            int n,i,j,temp,time=0,count,over=0,sum_wait=0,sum_turnaround=0,start;
+            float avgwait,avgturn;
+            printf("Enter the number of processes\n");
+            scanf("%d",&n);
+            for(i=0;i<n;i++)
+            {
+                        printf("Enter the arrival time and execution time for process %d\n",i+1);
+                        scanf("%d%d",&at[i],&bt[i]);
+                        pr[i]=i+1;
+            }
+            for(i=0;i<n-1;i++)
+            {
+                        for(j=i+1;j<n;j++)
+                        {
+                                    if(at[i]>at[j])
+                                    {
+                                                temp=at[i];
+                                                at[i]=at[j];
+                                                at[j]=temp;
+                                                temp=bt[i];
+                                                bt[i]=bt[j];
+                                                bt[j]=temp;
+                                                temp=pr[i];
+                                                pr[i]=pr[j];
+                                                pr[j]=temp;     
+                                    }
+                        
+                        }
+            }
+            printf("\n\nProcess\t|Arrival time\t|Execution time\t|Start time\t|End time\t|waiting                                     time\t|Turnaround time\n\n");
+            while(over<n)
+            {
+                        count=0;
+                        for(i=over;i<n;i++)
+                        {
+                                    if(at[i]<=time)
+                                    count++;
+                                    else
+                                    break;
+                        }
+                        if(count>1)
+                        {
+                                    for(i=over;i<over+count-1;i++)
+                                    {
+                                                for(j=i+1;j<over+count;j++)
+                                                {
+                                                            if(bt[i]>bt[j])
+                                                            {
+                                                                        temp=at[i];
+                                                                        at[i]=at[j];
+                                                                        at[j]=temp;
+                                                                        temp=bt[i];
+                                                                        bt[i]=bt[j];
+                                                                        bt[j]=temp;
+                                                                        temp=pr[i];
+                                                                        pr[i]=pr[j];
+                                                                        pr[j]=temp;     
+                                                            }
+                                                }                     
+                                    }
+                        }
+                        start=time;
+                        time+=bt[over];
+                         printf("p[%d]\t|\t%d\t|\t%d\t|\t%d\t|\t%d\t|\t%d\t|\t%d\n",pr[over],
+                                    at[over],bt[over],start,time,time-at[over]-bt[over],time-at[over]);
+                        sum_wait+=time-at[over]-bt[over];
 
-temp=at[i];
-at[i]=at[j];
-at[j]=temp;
-temp=bt[i];
-bt[i]=bt[j];
-bt[j]=temp;
-temp=pr[i];
-pr[i]=pr[j];
-pr[j]=temp;
-}
-}
-}
-}
-start=time;
-time+=bt[over];
-printf("p[%d]\t | \t%d\t | \t%d\t | \t%d\t\t%d\t\t%d\t\t%d\n",pr[over],at[over],bt[over],start,time,time-at[over]-bt[over],time-at[over]);
-sum_wait+=time-at[over]-bt[over];
-sum_tat+=time-at[over];
-over++;
-}
-avgwait=(float)sum_wait/(float)n;
-avgtat=(float)sum_tat/(float)n;
- printf("\nAverage Waiting Time is %f\n", avgwait);
-    printf("\nAverage Turnaround Time is = %f\n", avgtat);
-return 0;
-}
- 
+
+                        sum_turnaround+=time-at[over];
+                        over++;
+            }
+            avgwait=(float)sum_wait/(float)n;
+            avgturn=(float)sum_turnaround/(float)n;
+            printf("Average waiting time is %f\n",avgwait);
+            printf("Average turnaround time is %f\n",avgturn);
+            return 0;
+}   
