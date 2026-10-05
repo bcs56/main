@@ -1,119 +1,104 @@
-
 #include <stdio.h>
-
-#define MAX 100
 
 int main()
 {
-    int n, frames[MAX], counter[MAX];
-    int pages[MAX], m;
-    int i, j, k;
-    int pageFaults = 0;
-    int time = 0;
-    int found, replaceIndex;
+int pages[20], frame[5], time[5];
+int n, f, i, j, k;
+int faults = 0, count = 0;
+int hit, pos, min;
 
-    printf("Enter number of frames: ");
-    scanf("%d", &n);
+printf("Enter number of pages: ");
+scanf("%d", &n);
 
-    if (n <= 0 || n > MAX)
-    {
-        printf("Invalid number of frames.\n");
-        return 1;
-    }
+printf("Enter page reference string: ");
+for(i = 0; i < n; i++)
+scanf("%d", &pages[i]);
 
-    printf("Enter number of pages: ");
-    scanf("%d", &m);
+printf("Enter number of frames: ");
+scanf("%d", &f);
 
-    if (m <= 0 || m > MAX)
-    {
-        printf("Invalid number of pages.\n");
-        return 1;
-    }
-
-    printf("Enter the page reference string:\n");
-    for (i = 0; i < m; i++)
-    {
-        scanf("%d", &pages[i]);
-    }
-
-    // Initialize all frames as empty
-    for (i = 0; i < n; i++)
-    {
-        frames[i] = -1;
-        counter[i] = 0;
-    }
-
-    printf("\nPage\tFrames\t\tStatus\n");
-
-    for (i = 0; i < m; i++)
-    {
-        time++;
-        found = 0;
-
-        // Check whether the page is already present
-        for (j = 0; j < n; j++)
-        {
-            if (frames[j] == pages[i])
-            {
-                found = 1;
-                counter[j] = time;
-                break;
-            }
-        }
-
-        if (found == 0)
-        {
-            pageFaults++;
-
-            // Find an empty frame
-            replaceIndex = -1;
-
-            for (j = 0; j < n; j++)
-            {
-                if (frames[j] == -1)
-                {
-                    replaceIndex = j;
-                    break;
-                }
-            }
-
-            // If no empty frame, find least recently used page
-            if (replaceIndex == -1)
-            {
-                replaceIndex = 0;
-
-                for (j = 1; j < n; j++)
-                {
-                    if (counter[j] < counter[replaceIndex])
-                    {
-                        replaceIndex = j;
-                    }
-                }
-            }
-
-            frames[replaceIndex] = pages[i];
-            counter[replaceIndex] = time;
-        }
-
-        // Display current frame contents
-        printf("%d\t", pages[i]);
-
-        for (k = 0; k < n; k++)
-        {
-            if (frames[k] == -1)
-                printf("- ");
-            else
-                printf("%d ", frames[k]);
-        }
-
-        if (found == 0)
-            printf("\tPage Fault\n");
-        else
-            printf("\tHit\n");
-    }
-
-    printf("\nTotal Number of Page Faults = %d\n", pageFaults);
-    printf("Total Number of Page Hits = %d\n", m - pageFaults);
-
-    return 0;
+for(i = 0; i < f; i++)
+{
+frame[i] = -1;
+time[i] = 0;
 }
+
+for(i = 0; i < n; i++)
+{
+hit = 0;
+
+// Check page is already present
+for(j = 0; j < f; j++)
+{
+if(frame[j] == pages[i])
+{
+hit = 1;
+count++;
+time[j] = count;
+break;
+}
+}
+
+// Page fault
+if(hit == 0)
+{
+faults++;
+count++;
+
+// Find empty frame
+pos = -1;
+
+for(j = 0; j < f; j++)
+{
+if(frame[j] == -1)
+{
+pos = j;
+break;
+}
+}
+
+// If frames are full, find LRU
+if(pos == -1)
+{
+min = time[0];
+pos = 0;
+
+for(j = 1; j < f; j++)
+{
+if(time[j] < min)
+{
+min = time[j];
+pos = j;
+}
+}
+}
+
+frame[pos] = pages[i];
+time[pos] = count;
+}
+
+printf("\n%d -> ", pages[i]);
+
+for(k = 0; k < f; k++)
+printf("%d ", frame[k]);
+}
+
+printf("\n\nTotal Page Faults = %d\n", faults);
+
+return 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
