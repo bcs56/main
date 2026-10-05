@@ -1,105 +1,109 @@
-
-#include <stdio.h>
-
-int main()
+#include<stdio.h>
+int n;
+main()
 {
-    int n, frames, i, j, k;
-    int pages[100], memory[20];
-    int pageFaults = 0, found, pos;
-    int farthest, future;
+int seq[30],fr[5],pos[5],find,flag,max,i,j,m,k,t,s;
+int count=1,pf=0,p=0;
+float pfr;
+printf("Enter maximum limit of the sequence: ");
+scanf("%d",&max);
+printf("\nEnter the sequence: ");
+ for(i=0;i<max;i++)
+scanf("%d",&seq[i]);
+ printf("\nEnter no. of frames: ");
+ scanf("%d",&n);
+fr[0]=seq[0]; 
+pf++;
+printf("%d\t",fr[0]);
+i=1;
+while(count<n)
+{
+flag=1; p++;
+for(j=0;j<i;j++)
+{
+if(seq[i]==seq[j]) flag=0;
+}
+if(flag!=0)
+{
+ fr[count]=seq[i];
+ printf("%d\t",fr[count]);
+ count++;
+pf++;
 
-    printf("Enter number of pages: ");
-    scanf("%d", &n);
+}
+i++;
+}
+  
+printf("\n");
+for(i=p;i<max;i++)
+{
+flag=1;
+for(j=0;j<n;j++)
+{
+if(seq[i]==fr[j])
+flag=0;
+}
+if(flag!=0)
 
-    printf("Enter page reference string:\n");
-    for(i = 0; i < n; i++)
-        scanf("%d", &pages[i]);
+{
+for(j=0;j<n;j++)
+{
+m=fr[j];
+for(k=i;k<max;k++)
+{
+if(seq[k]==m)
+{
+    pos[j]=k;
+     break;
 
-    printf("Enter number of frames: ");
-    scanf("%d", &frames);
+ }
+else
+pos[j]=1;
 
-    for(i = 0; i < frames; i++)
-        memory[i] = -1;
+}
+}
+for(k=0;k<n;k++)
+{
+if(pos[k]==1)
+flag=0;
+}
+if(flag!=0)
+s=findmax(pos);
+ if(flag==0)
+{
+for(k=0;k<n;k++)
+{
+if(pos[k]==1)
+{
+s=k;
+ break;
+}
+}
+}
+fr[s]=seq[i];
+for(k=0;k<n;k++)
+printf("%d\t",fr[k]);
+pf++;
+printf("\n");
+}
+}
+pfr=(float)pf/(float)max;
+printf("\nThe no. of page faults are %d",pf);
+printf("\nPage fault rate %f",pfr);
+}
+int findmax(int a[])
+{
+int max,i,k=0;
+max=a[0];
+for(i=0;i<n;i++)
+{
+if(max<a[i])
+{
+  max=a[i];
+   k=i;
+}
 
-    printf("\nPage\tFrames\t\tStatus\n");
+}
 
-    for(i = 0; i < n; i++)
-    {
-        found = 0;
-
-        // Check whether page is already present
-        for(j = 0; j < frames; j++)
-        {
-            if(memory[j] == pages[i])
-            {
-                found = 1;
-                break;
-            }
-        }
-
-        if(found == 0)
-        {
-            pos = -1;
-            farthest = -1;
-
-            // Find an empty frame
-            for(j = 0; j < frames; j++)
-            {
-                if(memory[j] == -1)
-                {
-                    pos = j;
-                    break;
-                }
-            }
-
-            // Find the page used farthest in future
-            if(pos == -1)
-            {
-                for(j = 0; j < frames; j++)
-                {
-                    future = n;
-
-                    for(k = i + 1; k < n; k++)
-                    {
-                        if(memory[j] == pages[k])
-                        {
-                            future = k;
-                            break;
-                        }
-                    }
-
-                    if(future > farthest)
-                    {
-                        farthest = future;
-                        pos = j;
-                    }
-                }
-            }
-
-            memory[pos] = pages[i];
-            pageFaults++;
-        }
-
-        printf("%d\t", pages[i]);
-
-        for(j = 0; j < frames; j++)
-        {
-            if(memory[j] == -1)
-                printf("- ");
-            else
-                printf("%d ", memory[j]);
-        }
-
-        if(found == 0)
-            printf("\tPage Fault");
-        else
-            printf("\tHit");
-
-        printf("\n");
-    }
-
-    printf("\nTotal Page Faults = %d\n", pageFaults);
-    printf("Total Page Hits = %d\n", n - pageFaults);
-
-    return 0;
+return k;
 }
